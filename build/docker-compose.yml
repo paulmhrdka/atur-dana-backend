@@ -1,0 +1,33 @@
+services:
+  pfm-app:
+    container_name: pfm-app
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    depends_on:
+      - pfm-db
+    ports:
+      - "8080:8080"
+    env_file:
+      - ../.env
+    networks:
+      - pfm
+  pfm-db:
+    container_name: pfm-db
+    image: postgres:latest
+    restart: unless-stopped
+    ports:
+      - '2345:5432'
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    env_file:
+      - ../.env
+    networks:
+      - pfm
+
+networks:
+  pfm:
+    name: pfm
+    external: true
