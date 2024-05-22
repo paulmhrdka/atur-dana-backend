@@ -79,4 +79,4 @@
 For any questions or feedback, please reach out to:
 
 - **Email:** [mahardikapaul@gmail.com](mailto:mahardikapaul@gmail.com)
-- **GitHub Issues:** [GitHub Issues Page]
+- **GitHub Issues:** [GitHub Issues Page](https://github.com/paulmhrdka/atur-dana-backend/issues)
