@@ -15,9 +15,20 @@ import (
 	"gorm.io/gorm"
 )
 
-func Signup(w http.ResponseWriter, r *http.Request) {
+// Register godoc
+// @Summary      Register a new user
+// @Description  Creates a user account and returns a JWT token
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        body body requests.RegisterRequest true "Register payload"
+// @Success      201 {object} responses.SwaggerAuthResponse
+// @Failure      400 {object} common.SwaggerValidationErrorResponse
+// @Failure      500 {object} common.SwaggerErrorResponse
+// @Router       /auth/register [post]
+func Register(w http.ResponseWriter, r *http.Request) {
 	// Get Payload & Decode
-	var request requests.SignupRequest
+	var request requests.RegisterRequest
 	json.NewDecoder(r.Body).Decode(&request)
 
 	// Validate the request
@@ -68,9 +79,21 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 			UpdatedAt: user.UpdatedAt.Format("2006-01-02 15:04:05"),
 		},
 	}
-	common.JSONResponse(w, http.StatusCreated, data, "Sign Up Successfully")
+	common.JSONResponse(w, http.StatusCreated, data, "Register Successfully")
 }
 
+// Login godoc
+// @Summary      Authenticate a user
+// @Description  Validates credentials and returns a JWT token
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        body body requests.LoginRequest true "Login payload"
+// @Success      200 {object} responses.SwaggerAuthResponse
+// @Failure      400 {object} common.SwaggerValidationErrorResponse
+// @Failure      401 {object} common.SwaggerErrorResponse
+// @Failure      500 {object} common.SwaggerErrorResponse
+// @Router       /auth/login [post]
 func Login(w http.ResponseWriter, r *http.Request) {
 	var request requests.LoginRequest
 	json.NewDecoder(r.Body).Decode(&request)
@@ -86,7 +109,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	result := db.DB.Where("email = ?", request.Email).First(&dbUser)
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
-			common.JSONError(w, http.StatusUnauthorized, "Invalid credentials")
+			common.JSONError(w, http.StatusUnauthorized, "User not found!")
 		} else {
 			common.JSONError(w, http.StatusInternalServerError, "Internal Server Error")
 		}
@@ -95,7 +118,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	err := bcrypt.CompareHashAndPassword([]byte(dbUser.PasswordHash), []byte(request.Password))
 	if err != nil {
-		common.JSONError(w, http.StatusUnauthorized, "Invalid credentials")
+		common.JSONError(w, http.StatusUnauthorized, "User not found!")
 		return
 	}
 

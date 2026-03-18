@@ -15,6 +15,15 @@ import (
 	"gorm.io/gorm"
 )
 
+// GetTransactions godoc
+// @Summary      List transactions
+// @Tags         Transactions
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} responses.SwaggerTransactionListResponse
+// @Failure      401 {object} common.SwaggerErrorResponse
+// @Failure      500 {object} common.SwaggerErrorResponse
+// @Router       /api/transactions [get]
 func GetTransactions(w http.ResponseWriter, r *http.Request) {
 	metadata := context.Get(r, "metadata").(jwt.MapClaims)
 	var transactions []models.Transaction
@@ -44,6 +53,18 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 	common.JSONResponse(w, http.StatusOK, data, "Success Get Transactions")
 }
 
+// CreateTransaction godoc
+// @Summary      Create a transaction
+// @Tags         Transactions
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        body body requests.CreateTransactionRequest true "Transaction payload"
+// @Success      201 {object} common.SwaggerCreatedResponse
+// @Failure      400 {object} common.SwaggerValidationErrorResponse
+// @Failure      401 {object} common.SwaggerErrorResponse
+// @Failure      500 {object} common.SwaggerErrorResponse
+// @Router       /api/transactions [post]
 func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	metadata := context.Get(r, "metadata").(jwt.MapClaims)
 	userID := metadata["user_id"].(float64)

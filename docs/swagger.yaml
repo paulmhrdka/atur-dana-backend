@@ -1,0 +1,376 @@
+basePath: /
+definitions:
+  atur-dana_internal_common.SwaggerCreatedResponse:
+    properties:
+      message:
+        example: Transaction Created
+        type: string
+      status:
+        example: 201
+        type: integer
+    type: object
+  atur-dana_internal_common.SwaggerErrorResponse:
+    properties:
+      message:
+        example: Bad Request
+        type: string
+      status:
+        example: 400
+        type: integer
+    type: object
+  atur-dana_internal_common.SwaggerValidationErrorResponse:
+    properties:
+      errors:
+        additionalProperties:
+          type: string
+        type: object
+      status:
+        example: error
+        type: string
+    type: object
+  atur-dana_internal_requests.CreateBudgetRequest:
+    properties:
+      amount:
+        example: 1000000
+        type: number
+      category_id:
+        example: 2
+        type: integer
+      end_date:
+        example: "2026-03-31 23:59:59"
+        type: string
+      start_date:
+        example: "2026-03-01 00:00:00"
+        type: string
+    required:
+    - amount
+    - category_id
+    - end_date
+    - start_date
+    type: object
+  atur-dana_internal_requests.CreateTransactionRequest:
+    properties:
+      amount:
+        example: 50000
+        type: number
+      category_id:
+        example: 1
+        type: integer
+      date:
+        example: "2026-03-01 00:00:00"
+        type: string
+      description:
+        example: Monthly salary
+        type: string
+      type:
+        enum:
+        - income
+        - expense
+        example: income
+        type: string
+    required:
+    - amount
+    - category_id
+    - date
+    - description
+    - type
+    type: object
+  atur-dana_internal_requests.LoginRequest:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      password:
+        example: secret123
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  atur-dana_internal_requests.RegisterRequest:
+    properties:
+      email:
+        example: john@example.com
+        type: string
+      password:
+        example: secret123
+        type: string
+      username:
+        example: johndoe
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  atur-dana_internal_responses.AuthResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/atur-dana_internal_responses.User'
+    type: object
+  atur-dana_internal_responses.BudgetResponse:
+    properties:
+      amount:
+        type: number
+      category:
+        type: string
+      end_date:
+        type: string
+      start_date:
+        type: string
+    type: object
+  atur-dana_internal_responses.SwaggerAuthResponse:
+    properties:
+      data:
+        $ref: '#/definitions/atur-dana_internal_responses.AuthResponse'
+      message:
+        example: Login Successfully
+        type: string
+      status:
+        example: 200
+        type: integer
+    type: object
+  atur-dana_internal_responses.SwaggerBudgetListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/atur-dana_internal_responses.BudgetResponse'
+        type: array
+      message:
+        example: Success Get Budgets
+        type: string
+      status:
+        example: 200
+        type: integer
+    type: object
+  atur-dana_internal_responses.SwaggerTransactionListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/atur-dana_internal_responses.TransactionResponse'
+        type: array
+      message:
+        example: Success Get Transactions
+        type: string
+      status:
+        example: 200
+        type: integer
+    type: object
+  atur-dana_internal_responses.TransactionResponse:
+    properties:
+      amount:
+        type: number
+      category:
+        type: string
+      date:
+        type: string
+      description:
+        type: string
+      type:
+        type: string
+    type: object
+  atur-dana_internal_responses.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      update_at:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Personal finance management API for tracking transactions and budgets.
+  title: Atur Dana API
+  version: "1.0"
+paths:
+  /api/budgets:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/atur-dana_internal_responses.SwaggerBudgetListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List budgets
+      tags:
+      - Budgets
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Budget payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/atur-dana_internal_requests.CreateBudgetRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerCreatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a budget
+      tags:
+      - Budgets
+  /api/transactions:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/atur-dana_internal_responses.SwaggerTransactionListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List transactions
+      tags:
+      - Transactions
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Transaction payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/atur-dana_internal_requests.CreateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerCreatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a transaction
+      tags:
+      - Transactions
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Validates credentials and returns a JWT token
+      parameters:
+      - description: Login payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/atur-dana_internal_requests.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/atur-dana_internal_responses.SwaggerAuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
+      summary: Authenticate a user
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a user account and returns a JWT token
+      parameters:
+      - description: Register payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/atur-dana_internal_requests.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/atur-dana_internal_responses.SwaggerAuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerValidationErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
+      summary: Register a new user
+      tags:
+      - Auth
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and the JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

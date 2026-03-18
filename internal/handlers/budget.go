@@ -15,6 +15,15 @@ import (
 	"gorm.io/gorm"
 )
 
+// GetBudgets godoc
+// @Summary      List budgets
+// @Tags         Budgets
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} responses.SwaggerBudgetListResponse
+// @Failure      401 {object} common.SwaggerErrorResponse
+// @Failure      500 {object} common.SwaggerErrorResponse
+// @Router       /api/budgets [get]
 func GetBudgets(w http.ResponseWriter, r *http.Request) {
 	metadata := context.Get(r, "metadata").(jwt.MapClaims)
 	var budgets []models.Budget
@@ -43,6 +52,18 @@ func GetBudgets(w http.ResponseWriter, r *http.Request) {
 	common.JSONResponse(w, http.StatusOK, data, "Success Get Budgets")
 }
 
+// CreateBudget godoc
+// @Summary      Create a budget
+// @Tags         Budgets
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        body body requests.CreateBudgetRequest true "Budget payload"
+// @Success      201 {object} common.SwaggerCreatedResponse
+// @Failure      400 {object} common.SwaggerValidationErrorResponse
+// @Failure      401 {object} common.SwaggerErrorResponse
+// @Failure      500 {object} common.SwaggerErrorResponse
+// @Router       /api/budgets [post]
 func CreateBudget(w http.ResponseWriter, r *http.Request) {
 	metadata := context.Get(r, "metadata").(jwt.MapClaims)
 	userID := metadata["user_id"].(float64)

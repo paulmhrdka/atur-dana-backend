@@ -1,0 +1,566 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Personal finance management API for tracking transactions and budgets.",
+        "title": "Atur Dana API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/api/budgets": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Budgets"
+                ],
+                "summary": "List budgets",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_responses.SwaggerBudgetListResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Budgets"
+                ],
+                "summary": "Create a budget",
+                "parameters": [
+                    {
+                        "description": "Budget payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_requests.CreateBudgetRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerCreatedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transactions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "List transactions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_responses.SwaggerTransactionListResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Create a transaction",
+                "parameters": [
+                    {
+                        "description": "Transaction payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_requests.CreateTransactionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerCreatedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "description": "Validates credentials and returns a JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Authenticate a user",
+                "parameters": [
+                    {
+                        "description": "Login payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_requests.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_responses.SwaggerAuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "description": "Creates a user account and returns a JWT token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "Register payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_requests.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_responses.SwaggerAuthResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerValidationErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "atur-dana_internal_common.SwaggerCreatedResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Transaction Created"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 201
+                }
+            }
+        },
+        "atur-dana_internal_common.SwaggerErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Bad Request"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 400
+                }
+            }
+        },
+        "atur-dana_internal_common.SwaggerValidationErrorResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "type": "string",
+                    "example": "error"
+                }
+            }
+        },
+        "atur-dana_internal_requests.CreateBudgetRequest": {
+            "type": "object",
+            "required": [
+                "amount",
+                "category_id",
+                "end_date",
+                "start_date"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number",
+                    "example": 1000000
+                },
+                "category_id": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "end_date": {
+                    "type": "string",
+                    "example": "2026-03-31 23:59:59"
+                },
+                "start_date": {
+                    "type": "string",
+                    "example": "2026-03-01 00:00:00"
+                }
+            }
+        },
+        "atur-dana_internal_requests.CreateTransactionRequest": {
+            "type": "object",
+            "required": [
+                "amount",
+                "category_id",
+                "date",
+                "description",
+                "type"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number",
+                    "example": 50000
+                },
+                "category_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "date": {
+                    "type": "string",
+                    "example": "2026-03-01 00:00:00"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Monthly salary"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "income",
+                        "expense"
+                    ],
+                    "example": "income"
+                }
+            }
+        },
+        "atur-dana_internal_requests.LoginRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "john@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "secret123"
+                }
+            }
+        },
+        "atur-dana_internal_requests.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "john@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "secret123"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "johndoe"
+                }
+            }
+        },
+        "atur-dana_internal_responses.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/atur-dana_internal_responses.User"
+                }
+            }
+        },
+        "atur-dana_internal_responses.BudgetResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                }
+            }
+        },
+        "atur-dana_internal_responses.SwaggerAuthResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/atur-dana_internal_responses.AuthResponse"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Login Successfully"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 200
+                }
+            }
+        },
+        "atur-dana_internal_responses.SwaggerBudgetListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/atur-dana_internal_responses.BudgetResponse"
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Success Get Budgets"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 200
+                }
+            }
+        },
+        "atur-dana_internal_responses.SwaggerTransactionListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/atur-dana_internal_responses.TransactionResponse"
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Success Get Transactions"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 200
+                }
+            }
+        },
+        "atur-dana_internal_responses.TransactionResponse": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "atur-dana_internal_responses.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "update_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and the JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

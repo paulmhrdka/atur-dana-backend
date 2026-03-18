@@ -5,12 +5,16 @@ import (
 	"atur-dana/internal/middleware"
 
 	"github.com/gorilla/mux"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func RegisterRoutes(r *mux.Router) {
+	// Swagger UI
+	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
+
 	// Auth Routes
 	auth := r.PathPrefix("/auth").Subrouter()
-	auth.HandleFunc("/signup", handlers.Signup).Methods("POST")
+	auth.HandleFunc("/register", handlers.Register).Methods("POST")
 	auth.HandleFunc("/login", handlers.Login).Methods("POST")
 
 	// Protected Routes
