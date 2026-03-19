@@ -18,18 +18,19 @@ Personal finance management REST API (Go) for tracking income/expense transactio
 ## Project Structure
 
 ```
-cmd/main.go                  # Entry point — loads .env, init DB/validator, start :8080
+cmd/main.go                  # Entry point — loads .env, init DB/validator, graceful shutdown :8080
 internal/
   models/models.go           # GORM models: User, Transaction, Category, Budget
-  handlers/                  # HTTP handlers: auth, transaction, budget
+  handlers/                  # HTTP handlers: auth, transaction, category, health
   routes/routes.go           # Route registration
-  middleware/jwt.go          # JWT middleware for protected routes (/api/*)
+  middleware/                # jwt.go, logger.go (slog), request_id.go
+  metrics/metrics.go         # Prometheus metrics
   requests/                  # Request structs with validate tags
   responses/                 # Response structs + swagger wrapper types
   common/                    # Shared helpers: response, validator, constants, swagger types
   auth/jwt.go                # JWT token generation
   db/db.go                   # DB init + AutoMigrate
-docs/                        # Swagger-generated (do not edit manually)
+docs/                        # Swagger-generated (do not edit manually) + schema.sql + seed.sql
 build/docker-compose.yml     # App + Postgres containers
 Makefile                     # make docs / build / run
 ```
@@ -66,10 +67,13 @@ docker-compose -f build/docker-compose.yml up -d  # Start app + postgres
 |---|---|---|---|
 | POST | `/auth/register` | No | Register user, returns JWT |
 | POST | `/auth/login` | No | Login, returns JWT |
-| GET | `/api/transactions` | Bearer | List transactions |
+| GET | `/api/transactions` | Bearer | List transactions (filter: date, category, type; paginated) |
 | POST | `/api/transactions` | Bearer | Create transaction |
+| GET | `/api/transactions/summary` | Bearer | Income/expense totals + category breakdown |
+| GET | `/api/categories` | Bearer | List categories (filter: active_only) |
 | GET | `/api/budgets` | Bearer | List budgets |
 | POST | `/api/budgets` | Bearer | Create budget |
+| GET | `/health` | No | Health check (DB connectivity) |
 | GET | `/swagger/` | No | Swagger UI |
 
 ## Code Conventions

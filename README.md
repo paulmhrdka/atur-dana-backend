@@ -5,11 +5,14 @@
 
 ## Features
 
-- Track income and expenses
+- Track income and expenses with filtering, pagination, and date ranges
+- Transaction summary with totals and category breakdown
+- Category management
 - Budgeting tools
-- Financial reports
-- Secure user authentication
-- Real-time data synchronization
+- Secure user authentication (JWT)
+- Structured logging with request ID tracing
+- Health check endpoint with DB connectivity status
+- Swagger API documentation
 
 ## Technologies Used
 
@@ -17,7 +20,7 @@
 - **Database:** PostgreSQL
 - **API:** RESTful API
 - **Authentication:** JWT
-- **Frameworks and Libraries:** GORM
+- **Frameworks and Libraries:** gorilla/mux, GORM, swaggo/swag
 
 ## Getting Started
 
@@ -29,21 +32,36 @@
 
 ## Project Structure
 ```bash
-├── build               # CI/CD configuration files
-├── cmd                 # Main application entry point
-│   └── main.go          # Main file
-└── internal            # Internal packages (shhh... it's internal 🤫)
-    ├── auth            # Authentication logic
-    ├── common          # Common utilities and helpers
-    ├── db              # Database interactions and migrations
-    ├── handlers        # HTTP request handlers
-    ├── middleware      # Middleware components
-    ├── models          # Database entities
-    ├── requests        # Request payload definitions
-    ├── responses       # Response payload definitions
+├── bin                 # Compiled binary
+├── build               # Docker Compose configuration
+├── cmd
+│   └── main.go         # Entry point — loads .env, init DB/validator, graceful shutdown
+├── docs                # Swagger-generated files + schema.sql + seed.sql
+└── internal
+    ├── auth            # JWT token generation
+    ├── common          # Shared helpers: response, validator, constants, swagger types
+    ├── db              # DB init + AutoMigrate
+    ├── handlers        # HTTP handlers: auth, transaction, category, health
+    ├── metrics         # Prometheus metrics
+    ├── middleware      # JWT auth, request ID, structured logger
+    ├── models          # GORM models: User, Transaction, Category, Budget
+    ├── requests        # Request payload structs with validate tags
+    ├── responses       # Response structs + swagger wrapper types
     └── routes          # API route definitions
-
 ```
+
+## API Routes
+
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/auth/register` | No | Register user, returns JWT |
+| POST | `/auth/login` | No | Login, returns JWT |
+| GET | `/api/transactions` | Bearer | List transactions (filter by date, category, type; paginated) |
+| POST | `/api/transactions` | Bearer | Create transaction |
+| GET | `/api/transactions/summary` | Bearer | Income/expense totals + category breakdown |
+| GET | `/api/categories` | Bearer | List categories (filter active_only) |
+| GET | `/health` | No | Health check (DB connectivity) |
+| GET | `/swagger/` | No | Swagger UI |
 
 ### Installation
 
@@ -56,10 +74,12 @@
 
 2. **Set up environment variables:**
 
-    copy `.env.example` file into `.env` file, and insert your credential for DB connection & JWT Secret
+    Copy `.env.example` into `.env` and fill in your credentials:
 
     ```sh
     cp .env.example .env
+    # Set: DATABASE_URL, DB_NAME, DB_USER, DB_PASSWORD, JWT_SECRET_KEY
+    # Optional: LOG_FORMAT=json (default: text)
     ```
 
 3. **Install dependencies:**
@@ -71,8 +91,23 @@
 4. **Start the server:**
 
     ```sh
-    go run cmd/main.go # it automatically run migration
+    make run   # regenerates Swagger docs then starts :8080
+    # or
+    go run cmd/main.go
     ```
+
+5. **Load seed data (optional):**
+
+    ```sh
+    psql -U <user> -d <db> -f docs/seed.sql
+    ```
+
+### Docker
+
+```sh
+docker network create pfm
+docker-compose -f build/docker-compose.yml up -d
+```
 
 ## Contact
 
