@@ -15,18 +15,19 @@ Personal finance management REST API for tracking income/expense transactions an
 
 ## Architecture
 ```
-cmd/main.go                  # Entry point - loads env, init DB, start server :8080
+cmd/main.go                  # Entry point - loads env, init DB, graceful shutdown :8080
 internal/
   models/models.go           # GORM models: User, Transaction, Category, Budget
-  handlers/                  # HTTP handlers: auth.go, transaction.go, budget.go
+  handlers/                  # HTTP handlers: auth.go, transaction.go, category.go, health.go
   routes/routes.go           # Route registration (mux subrouters)
-  middleware/jwt.go          # JWT auth middleware for protected routes
+  middleware/                # jwt.go, logger.go (slog + request ID), request_id.go
+  metrics/metrics.go         # Prometheus metrics
   requests/                  # Request structs with validate tags
   responses/                 # Response structs + swagger types
   common/                    # Shared: response.go, validator.go, constant.go, swagger_types.go
   auth/jwt.go                # JWT generation helper
   db/db.go                   # DB init, AutoMigrate
-docs/                        # Swagger-generated files (swagger.json, swagger.yaml, docs.go)
+docs/                        # Swagger-generated files + schema.sql + seed.sql
 build/docker-compose.yml     # Docker Compose (app + postgres)
 Makefile                     # make docs / build / run
 ```
@@ -40,6 +41,17 @@ Makefile                     # make docs / build / run
 ## API Routes
 - `POST /auth/register` — register + return JWT
 - `POST /auth/login` — login + return JWT
-- `GET/POST /api/transactions` — protected
+- `GET /api/transactions` — list with filter (date range, category, type) + pagination
+- `POST /api/transactions` — create transaction
+- `GET /api/transactions/summary` — income/expense totals + category breakdown
+- `GET /api/categories` — list categories (filter: active_only)
 - `GET/POST /api/budgets` — protected
+- `GET /health` — health check with DB connectivity
 - `GET /swagger/` — Swagger UI
+
+## Observability
+- Structured logging via `log/slog` (text or JSON via LOG_FORMAT env var)
+- Request ID middleware (X-Request-ID header)
+- Prometheus metrics skeleton (`internal/metrics/metrics.go`)
+- Graceful shutdown on SIGINT/SIGTERM with 15s timeout
+- HTTP server timeouts: ReadTimeout=15s, WriteTimeout=15s
