@@ -15,12 +15,25 @@ var DB *gorm.DB
 
 func Init() {
 	dsn := os.Getenv("DATABASE_URL")
+	logLevel := os.Getenv("LogLevel")
+	dbLog := logger.Silent
+
+	switch logLevel {
+	case "INFO":
+		dbLog = logger.Info
+	case "WARN":
+		dbLog = logger.Warn
+	case "ERROR":
+		dbLog = logger.Error
+	default:
+		dbLog = logger.Silent
+	}
 
 	dbLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
 		logger.Config{
 			SlowThreshold:             time.Second,
-			LogLevel:                  logger.Info,
+			LogLevel:                  dbLog,
 			IgnoreRecordNotFoundError: true,
 			ParameterizedQueries:      false,
 			Colorful:                  true,

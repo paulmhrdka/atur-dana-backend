@@ -17,17 +17,18 @@ type User struct {
 
 type Transaction struct {
 	gorm.Model
-	UserID      uint
-	Type        string
+	UserID      uint   `gorm:"index:idx_trx_filter,priority:1"`
+	Type        string `gorm:"index:idx_trx_filter,priority:4"`
 	Amount      float64
 	Description string
-	CategoryID  uint
+	CategoryID  uint `gorm:"index:idx_trx_filter,priority:3"`
 	Category    Category
-	Date        time.Time `gorm:"type:timestamp"`
+	Date        time.Time `gorm:"type:timestamp;index:idx_trx_filter,priority:2"`
 }
 
 type Category struct {
 	gorm.Model
+	UserID   uint   `gorm:"index"`
 	Name     string `gorm:"unique"`
 	IsActive bool   `gorm:"default:true"`
 }

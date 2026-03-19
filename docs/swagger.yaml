@@ -1,5 +1,25 @@
 basePath: /
 definitions:
+  atur-dana_internal_common.Pagination:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      pages:
+        type: integer
+      total:
+        type: integer
+    type: object
+  atur-dana_internal_common.SwaggerBadRequestResponse:
+    properties:
+      message:
+        example: invalid date format
+        type: string
+      status:
+        example: 400
+        type: integer
+    type: object
   atur-dana_internal_common.SwaggerCreatedResponse:
     properties:
       message:
@@ -16,6 +36,15 @@ definitions:
         type: string
       status:
         example: 400
+        type: integer
+    type: object
+  atur-dana_internal_common.SwaggerSuccessResponse:
+    properties:
+      message:
+        example: OK
+        type: string
+      status:
+        example: 200
         type: integer
     type: object
   atur-dana_internal_common.SwaggerValidationErrorResponse:
@@ -121,6 +150,59 @@ definitions:
       start_date:
         type: string
     type: object
+  atur-dana_internal_responses.CategoryBreakdown:
+    properties:
+      category_id:
+        type: integer
+      category_name:
+        type: string
+      count:
+        type: integer
+      percentage:
+        type: number
+      total:
+        type: number
+      type:
+        type: string
+    type: object
+  atur-dana_internal_responses.CategoryResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      name:
+        type: string
+    type: object
+  atur-dana_internal_responses.SummaryPeriod:
+    properties:
+      end_date:
+        type: string
+      start_date:
+        type: string
+    type: object
+  atur-dana_internal_responses.SummaryResponse:
+    properties:
+      by_category:
+        items:
+          $ref: '#/definitions/atur-dana_internal_responses.CategoryBreakdown'
+        type: array
+      period:
+        $ref: '#/definitions/atur-dana_internal_responses.SummaryPeriod'
+      totals:
+        $ref: '#/definitions/atur-dana_internal_responses.SummaryTotals'
+    type: object
+  atur-dana_internal_responses.SummaryTotals:
+    properties:
+      expense:
+        type: number
+      income:
+        type: number
+      net:
+        type: number
+    type: object
   atur-dana_internal_responses.SwaggerAuthResponse:
     properties:
       data:
@@ -145,7 +227,20 @@ definitions:
         example: 200
         type: integer
     type: object
-  atur-dana_internal_responses.SwaggerTransactionListResponse:
+  atur-dana_internal_responses.SwaggerCategoryListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/atur-dana_internal_responses.CategoryResponse'
+        type: array
+      message:
+        example: Success Get Categories
+        type: string
+      status:
+        example: 200
+        type: integer
+    type: object
+  atur-dana_internal_responses.SwaggerTransactionPaginatedResponse:
     properties:
       data:
         items:
@@ -153,6 +248,19 @@ definitions:
         type: array
       message:
         example: Success Get Transactions
+        type: string
+      pagination:
+        $ref: '#/definitions/atur-dana_internal_common.Pagination'
+      status:
+        example: 200
+        type: integer
+    type: object
+  atur-dana_internal_responses.SwaggerTransactionSummaryResponse:
+    properties:
+      data:
+        $ref: '#/definitions/atur-dana_internal_responses.SummaryResponse'
+      message:
+        example: Success Get Transaction Summary
         type: string
       status:
         example: 200
@@ -164,10 +272,16 @@ definitions:
         type: number
       category:
         type: string
+      category_id:
+        type: integer
+      created_at:
+        type: string
       date:
         type: string
       description:
         type: string
+      id:
+        type: integer
       type:
         type: string
     type: object
@@ -247,26 +361,82 @@ paths:
       summary: Create a budget
       tags:
       - Budgets
-  /api/transactions:
+  /api/categories:
     get:
+      parameters:
+      - description: Filter active categories only (default true)
+        in: query
+        name: active_only
+        type: boolean
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/atur-dana_internal_responses.SwaggerTransactionListResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
+            $ref: '#/definitions/atur-dana_internal_responses.SwaggerCategoryListResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
       security:
       - BearerAuth: []
-      summary: List transactions
+      summary: List categories for the authenticated user
+      tags:
+      - Categories
+  /api/transactions:
+    get:
+      parameters:
+      - description: Start date (RFC3339, e.g. 2026-01-01T00:00:00Z)
+        in: query
+        name: start_date
+        type: string
+      - description: End date (RFC3339)
+        in: query
+        name: end_date
+        type: string
+      - description: Filter by category ID
+        in: query
+        name: category_id
+        type: integer
+      - description: 'Filter by type: income or expense'
+        in: query
+        name: type
+        type: string
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Items per page (default 20, max 100)
+        in: query
+        name: limit
+        type: integer
+      - description: 'Sort field: date or amount (default date)'
+        in: query
+        name: sort_by
+        type: string
+      - description: 'Sort direction: asc or desc (default desc)'
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/atur-dana_internal_responses.SwaggerTransactionPaginatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerBadRequestResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List transactions with filtering and pagination
       tags:
       - Transactions
     post:
@@ -301,6 +471,39 @@ paths:
       security:
       - BearerAuth: []
       summary: Create a transaction
+      tags:
+      - Transactions
+  /api/transactions/summary:
+    get:
+      parameters:
+      - description: Start date (RFC3339)
+        in: query
+        name: start_date
+        required: true
+        type: string
+      - description: End date (RFC3339)
+        in: query
+        name: end_date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/atur-dana_internal_responses.SwaggerTransactionSummaryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerBadRequestResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get transaction summary (totals + category breakdown)
       tags:
       - Transactions
   /auth/login:
@@ -367,6 +570,24 @@ paths:
       summary: Register a new user
       tags:
       - Auth
+  /health:
+    get:
+      description: Returns the current health status of the service including database
+        connectivity
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerSuccessResponse'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/atur-dana_internal_common.SwaggerErrorResponse'
+      summary: Health check
+      tags:
+      - Health
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and the JWT token.

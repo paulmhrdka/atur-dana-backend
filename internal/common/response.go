@@ -74,3 +74,22 @@ func JSONResponse(w http.ResponseWriter, status int, data interface{}, message s
 func JSONError(w http.ResponseWriter, status int, message string) {
 	JSONResponse(w, status, nil, message)
 }
+
+type Pagination struct {
+	Page  int   `json:"page"`
+	Limit int   `json:"limit"`
+	Total int64 `json:"total"`
+	Pages int   `json:"pages"`
+}
+
+func JSONPaginatedResponse(w http.ResponseWriter, status int, data interface{}, pagination Pagination, message string) {
+	response := map[string]interface{}{
+		"status":     status,
+		"message":    message,
+		"data":       data,
+		"pagination": pagination,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(response)
+}

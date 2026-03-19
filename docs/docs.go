@@ -105,6 +105,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/categories": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "List categories for the authenticated user",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Filter active categories only (default true)",
+                        "name": "active_only",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_responses.SwaggerCategoryListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/transactions": {
             "get": {
                 "security": [
@@ -118,18 +156,68 @@ const docTemplate = `{
                 "tags": [
                     "Transactions"
                 ],
-                "summary": "List transactions",
+                "summary": "List transactions with filtering and pagination",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start date (RFC3339, e.g. 2026-01-01T00:00:00Z)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (RFC3339)",
+                        "name": "end_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by category ID",
+                        "name": "category_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by type: income or expense",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number (default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page (default 20, max 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort field: date or amount (default date)",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort direction: asc or desc (default desc)",
+                        "name": "sort_order",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/atur-dana_internal_responses.SwaggerTransactionListResponse"
+                            "$ref": "#/definitions/atur-dana_internal_responses.SwaggerTransactionPaginatedResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerBadRequestResponse"
                         }
                     },
                     "500": {
@@ -184,6 +272,58 @@ const docTemplate = `{
                         "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transactions/summary": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Get transaction summary (totals + category breakdown)",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start date (RFC3339)",
+                        "name": "start_date",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (RFC3339)",
+                        "name": "end_date",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_responses.SwaggerTransactionSummaryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerBadRequestResponse"
                         }
                     },
                     "500": {
@@ -292,9 +432,65 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/health": {
+            "get": {
+                "description": "Returns the current health status of the service including database connectivity",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerSuccessResponse"
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "schema": {
+                            "$ref": "#/definitions/atur-dana_internal_common.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "atur-dana_internal_common.Pagination": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pages": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "atur-dana_internal_common.SwaggerBadRequestResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "invalid date format"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 400
+                }
+            }
+        },
         "atur-dana_internal_common.SwaggerCreatedResponse": {
             "type": "object",
             "properties": {
@@ -318,6 +514,19 @@ const docTemplate = `{
                 "status": {
                     "type": "integer",
                     "example": 400
+                }
+            }
+        },
+        "atur-dana_internal_common.SwaggerSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "OK"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 200
                 }
             }
         },
@@ -466,6 +675,88 @@ const docTemplate = `{
                 }
             }
         },
+        "atur-dana_internal_responses.CategoryBreakdown": {
+            "type": "object",
+            "properties": {
+                "category_id": {
+                    "type": "integer"
+                },
+                "category_name": {
+                    "type": "string"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "percentage": {
+                    "type": "number"
+                },
+                "total": {
+                    "type": "number"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "atur-dana_internal_responses.CategoryResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "atur-dana_internal_responses.SummaryPeriod": {
+            "type": "object",
+            "properties": {
+                "end_date": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                }
+            }
+        },
+        "atur-dana_internal_responses.SummaryResponse": {
+            "type": "object",
+            "properties": {
+                "by_category": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/atur-dana_internal_responses.CategoryBreakdown"
+                    }
+                },
+                "period": {
+                    "$ref": "#/definitions/atur-dana_internal_responses.SummaryPeriod"
+                },
+                "totals": {
+                    "$ref": "#/definitions/atur-dana_internal_responses.SummaryTotals"
+                }
+            }
+        },
+        "atur-dana_internal_responses.SummaryTotals": {
+            "type": "object",
+            "properties": {
+                "expense": {
+                    "type": "number"
+                },
+                "income": {
+                    "type": "number"
+                },
+                "net": {
+                    "type": "number"
+                }
+            }
+        },
         "atur-dana_internal_responses.SwaggerAuthResponse": {
             "type": "object",
             "properties": {
@@ -501,7 +792,26 @@ const docTemplate = `{
                 }
             }
         },
-        "atur-dana_internal_responses.SwaggerTransactionListResponse": {
+        "atur-dana_internal_responses.SwaggerCategoryListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/atur-dana_internal_responses.CategoryResponse"
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Success Get Categories"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 200
+                }
+            }
+        },
+        "atur-dana_internal_responses.SwaggerTransactionPaginatedResponse": {
             "type": "object",
             "properties": {
                 "data": {
@@ -513,6 +823,25 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "Success Get Transactions"
+                },
+                "pagination": {
+                    "$ref": "#/definitions/atur-dana_internal_common.Pagination"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 200
+                }
+            }
+        },
+        "atur-dana_internal_responses.SwaggerTransactionSummaryResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/atur-dana_internal_responses.SummaryResponse"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Success Get Transaction Summary"
                 },
                 "status": {
                     "type": "integer",
@@ -529,11 +858,20 @@ const docTemplate = `{
                 "category": {
                     "type": "string"
                 },
+                "category_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
                 "date": {
                     "type": "string"
                 },
                 "description": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "type": {
                     "type": "string"
